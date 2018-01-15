@@ -11,7 +11,7 @@ import (
 	"testing"
 )
 
-const sagemakerTestAccReourceNamePrefix = "terraform-testacc-"
+const sagemakerTestAccSagemakerNotebookInstanceResourceNamePrefix = "terraform-testacc-"
 
 func init() {
 	resource.AddTestSweepers("aws_sagemaker_notebook_instance", &resource.Sweeper{
@@ -20,14 +20,13 @@ func init() {
 }
 
 func TestAccAWSSagemakerNotebookInstance_basic(t *testing.T) {
-	var trainingJob sagemaker.DescribeTrainingJobOutput
-	trainingJobName := resource.PrefixedUniqueId(sagemakerTestAccReourceNamePrefix)
-	bucketName := resource.PrefixedUniqueId(sagemakerTestAccReourceNamePrefix)
+	var notebook sagemaker.DescribeNotebookInstanceOutput
+	notebookName := resource.PrefixedUniqueId(sagemakerTestAccSagemakerNotebookInstanceResourceNamePrefix)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckSagemakerTrainingJobDestroy,
+		CheckDestroy: testAccCheckSagemakerNotebookInstanceDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccSagemakerTrainingJobConfig(trainingJobName, bucketName),
@@ -44,14 +43,13 @@ func TestAccAWSSagemakerNotebookInstance_basic(t *testing.T) {
 }
 
 func TestAccAWSSagemakerNotebookInstance_update(t *testing.T) {
-	var trainingJob sagemaker.DescribeTrainingJobOutput
-	trainingJobName := resource.PrefixedUniqueId(sagemakerTestAccReourceNamePrefix)
-	bucketName := resource.PrefixedUniqueId(sagemakerTestAccReourceNamePrefix)
+	var notebook sagemaker.DescribeNotebookInstanceOutput
+	notebookName := resource.PrefixedUniqueId(sagemakerTestAccSagemakerNotebookInstanceResourceNamePrefix)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckSagemakerTrainingJobDestroy,
+		CheckDestroy: testAccCheckSagemakerNotebookInstanceDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccSagemakerTrainingJobConfig(trainingJobName, bucketName),
@@ -78,7 +76,7 @@ func TestAccAWSSagemakerNotebookInstance_update(t *testing.T) {
 }
 func TestAccAWSSagemakerNotebookInstance_tags(t *testing.T) {
 	var notebook sagemaker.DescribeNotebookInstanceOutput
-	notebookName := resource.PrefixedUniqueId(sagemakerTestAccReourceNamePrefix)
+	notebookName := resource.PrefixedUniqueId(sagemakerTestAccSagemakerNotebookInstanceResourceNamePrefix)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -181,7 +179,7 @@ func testAccCheckSagemakerNotebookInstanceName(notebook *sagemaker.DescribeNoteb
 	}
 }
 
-func testAccCheckNotebookInstanceJobTags(notebook *sagemaker.DescribeNotebookInstanceOutput, key string, value string) resource.TestCheckFunc {
+func testAccCheckSagemakerNotebookInstanceTags(notebook *sagemaker.DescribeNotebookInstanceOutput, key string, value string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		conn := testAccProvider.Meta().(*AWSClient).sagemakerconn
 
@@ -318,5 +316,5 @@ data "aws_iam_policy_document" "assume_role" {
 		}
 	}
 }
-`, trainingJobName, bucketName)
+`, notebookName)
 }
