@@ -7,7 +7,6 @@ import (
 	"github.com/aws/aws-sdk-go/service/sagemaker"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	"regexp"
 	"testing"
 )
 
@@ -29,13 +28,13 @@ func TestAccAWSSagemakerNotebookInstance_basic(t *testing.T) {
 		CheckDestroy: testAccCheckSagemakerNotebookInstanceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccSagemakerTrainingJobConfig(trainingJobName, bucketName),
+				Config: testAccSagemakerNotebookInstanceConfig(notebookName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckSagemakerTrainingJobExists("aws_sagemaker_training_job.foo", &trainingJob),
-					testAccCheckSagemakerTrainingJobName(&trainingJob, trainingJobName),
+					testAccCheckSagemakerNotebookInstanceExists("aws_sagemaker_notebook_instance.foo", &notebook),
+					testAccCheckSagemakerNotebookInstanceName(&notebook, notebookName),
 
 					resource.TestCheckResourceAttr(
-						"aws_sagemaker_training_job.foo", "name", trainingJobName),
+						"aws_sagemaker_notebook_instance.foo", "name", notebookName),
 				),
 			},
 		},
@@ -52,28 +51,28 @@ func TestAccAWSSagemakerNotebookInstance_update(t *testing.T) {
 		CheckDestroy: testAccCheckSagemakerNotebookInstanceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccSagemakerTrainingJobConfig(trainingJobName, bucketName),
+				Config: testAccSagemakerNotebookInstanceConfig(notebookName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckSagemakerTrainingJobExists("aws_sagemaker_training_job.foo", &trainingJob),
+					testAccCheckSagemakerNotebookInstanceExists("aws_sagemaker_notebook_instance.foo", &notebook),
 
 					resource.TestCheckResourceAttr(
-						"aws_sagemaker_training_job.foo", "hyper_parameters.epochs", "3"),
+						"aws_sagemaker_notebook_instance.foo", "instance_type", "ml.t2.medium"),
 				),
 			},
 
 			{
-				Config: testAccSagemakerTrainingJobUpdateConfig(trainingJobName, bucketName),
+				Config: testAccSagemakerNotebookInstanceUpdateConfig(notebookName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckSagemakerTrainingJobExists("aws_sagemaker_training_job.foo", &trainingJob),
+					testAccCheckSagemakerNotebookInstanceExists("aws_sagemaker_notebook_instance.foo", &notebook),
 
 					resource.TestCheckResourceAttr(
-						"aws_sagemaker_training_job.foo", "hyper_parameters.epochs", "3"),
+						"aws_sagemaker_notebook_instance.foo", "instance_type", "ml.m4.xlarge"),
 				),
-				ExpectError: regexp.MustCompile(`.*existing Training Jobs cannot be updated.*`),
 			},
 		},
 	})
 }
+
 func TestAccAWSSagemakerNotebookInstance_tags(t *testing.T) {
 	var notebook sagemaker.DescribeNotebookInstanceOutput
 	notebookName := resource.PrefixedUniqueId(sagemakerTestAccSagemakerNotebookInstanceResourceNamePrefix)
@@ -214,7 +213,7 @@ func testAccSagemakerNotebookInstanceConfig(notebookName string) string {
 resource "aws_sagemaker_notebook_instance" "foo" {
 	name = "%s"
 	role_arn = "${aws_iam_role.foo.arn}"
-	instance_type = "ml.t2.medimum"
+	instance_type = "ml.t2.medium"
 }
 
 resource "aws_iam_role" "foo" {
@@ -266,7 +265,7 @@ func testAccSagemakerNotebookInstanceTagsConfig(notebookName string) string {
 resource "aws_sagemaker_notebook_instance" "foo" {
 	name = "%s"
 	role_arn = "${aws_iam_role.foo.arn}"
-	instance_type = "ml.t2.medimum"
+	instance_type = "ml.t2.medium"
 	tags {
 		foo = "bar"
 	}
@@ -295,7 +294,7 @@ func testAccSagemakerNotebookInstanceTagsUpdateConfig(notebookName string) strin
 resource "aws_sagemaker_notebook_instance" "foo" {
 	name = "%s"
 	role_arn = "${aws_iam_role.foo.arn}"
-	instance_type = "ml.t2.medimum"
+	instance_type = "ml.t2.medium"
 	tags {
 		bar = "baz"
 	}
